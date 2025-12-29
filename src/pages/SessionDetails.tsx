@@ -22,6 +22,14 @@ import { toast } from "sonner";
 type SessionStatus = "active" | "paused";
 type MessageRole = "user" | "assistant";
 
+interface SessionConfig {
+  aiPrompt: string;
+  syncInterval: string;
+  language: string;
+  filterKeywords: string[];
+  autoSummarize: boolean;
+}
+
 interface Session {
   id: string;
   name: string;
@@ -32,6 +40,7 @@ interface Session {
   createdAt: string;
   tags: string[];
   description: string;
+  config: SessionConfig;
 }
 
 interface ChatMessage {
@@ -51,6 +60,13 @@ const mockSession: Session = {
   createdAt: "Dec 15, 2024",
   tags: ["crypto", "trading", "signals"],
   description: "Premium crypto signals and market analysis from verified traders.",
+  config: {
+    aiPrompt: "You are an AI assistant that analyzes crypto trading signals. Extract key information such as: trading pairs, entry/exit prices, stop loss levels, and sentiment. Summarize trends and provide actionable insights based on the indexed messages.",
+    syncInterval: "Every 30 minutes",
+    language: "English",
+    filterKeywords: ["BTC", "ETH", "signal", "buy", "sell", "target"],
+    autoSummarize: true,
+  },
 };
 
 const mockMessages: ChatMessage[] = [
@@ -283,11 +299,67 @@ const SessionDetails = () => {
           <Card className="glass">
             <CardHeader>
               <CardTitle className="text-base">Configuration</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm">
-                Session configuration and AI agent prompts will appear here.
+              <p className="text-sm text-muted-foreground">
+                Current session settings and AI agent configuration
               </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* AI Prompt */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground">AI Agent Prompt</h4>
+                <div className="p-3 rounded-lg bg-muted/30 border">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {session.config.aiPrompt}
+                  </p>
+                </div>
+              </div>
+
+              {/* Settings Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-foreground">Sync Interval</h4>
+                  <div className="p-3 rounded-lg bg-muted/30 border">
+                    <p className="text-sm text-muted-foreground">{session.config.syncInterval}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-foreground">Language</h4>
+                  <div className="p-3 rounded-lg bg-muted/30 border">
+                    <p className="text-sm text-muted-foreground">{session.config.language}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Keywords */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-foreground">Filter Keywords</h4>
+                <div className="flex flex-wrap gap-2">
+                  {session.config.filterKeywords.map((keyword) => (
+                    <Badge key={keyword} variant="secondary">
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Auto Summarize Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
+                <div>
+                  <h4 className="text-sm font-medium text-foreground">Auto Summarize</h4>
+                  <p className="text-xs text-muted-foreground">Automatically generate summaries for new messages</p>
+                </div>
+                <Badge variant={session.config.autoSummarize ? "default" : "secondary"}>
+                  {session.config.autoSummarize ? "Enabled" : "Disabled"}
+                </Badge>
+              </div>
+
+              {/* Edit Button */}
+              <Button variant="outline" asChild className="w-full">
+                <Link to={`/sessions/${id}/edit`}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Edit Configuration
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
