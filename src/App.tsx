@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Sessions from "./pages/Sessions";
+import SessionDetails from "./pages/SessionDetails";
 import CreateSession from "./pages/CreateSession";
 import Reports from "./pages/Reports";
 import Telegram from "./pages/Telegram";
@@ -29,7 +30,9 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/sessions" element={<Sessions />} />
             <Route path="/sessions/new" element={<CreateSession />} />
-            <Route path="/sessions/:id" element={<CreateSession />} />
+            <Route path="/sessions/:id" element={<SessionDetails />} />
+            <Route path="/sessions/:id/chat" element={<SessionDetails />} />
+            <Route path="/sessions/:id/edit" element={<CreateSession />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/telegram" element={<Telegram />} />
             <Route path="/settings" element={<Settings />} />
