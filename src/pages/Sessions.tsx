@@ -15,6 +15,7 @@ import {
   Edit,
   Calendar,
   Bot,
+  RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const mockSessions = [
   {
@@ -65,7 +67,35 @@ const mockSessions = [
 
 const Sessions = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sessions] = useState(mockSessions);
+  const [sessions, setSessions] = useState(mockSessions);
+  const [syncingIds, setSyncingIds] = useState<string[]>([]);
+
+  const handleToggleStatus = (sessionId: string) => {
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === sessionId
+          ? { ...s, status: s.status === "active" ? "paused" : "active" }
+          : s
+      )
+    );
+    const session = sessions.find((s) => s.id === sessionId);
+    toast.success(
+      session?.status === "active" ? "Session paused" : "Session resumed"
+    );
+  };
+
+  const handleSyncMessages = (sessionId: string) => {
+    setSyncingIds((prev) => [...prev, sessionId]);
+    setTimeout(() => {
+      setSyncingIds((prev) => prev.filter((id) => id !== sessionId));
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === sessionId ? { ...s, lastSync: "Just now" } : s
+        )
+      );
+      toast.success("Messages synced successfully");
+    }, 2000);
+  };
 
   const filteredSessions = sessions.filter((session) =>
     session.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -220,9 +250,44 @@ const Sessions = () => {
                   </div>
                 </div>
 
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleToggleStatus(session.id)}
+                  >
+                    {session.status === "active" ? (
+                      <>
+                        <Pause className="w-3.5 h-3.5 mr-1.5" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3.5 h-3.5 mr-1.5" />
+                        Resume
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleSyncMessages(session.id)}
+                    disabled={syncingIds.includes(session.id)}
+                  >
+                    <RefreshCw
+                      className={`w-3.5 h-3.5 mr-1.5 ${
+                        syncingIds.includes(session.id) ? "animate-spin" : ""
+                      }`}
+                    />
+                    Sync
+                  </Button>
+                </div>
+
                 <Button
                   variant="outline"
-                  className="w-full mt-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all"
+                  className="w-full mt-2 group-hover:bg-primary group-hover:text-primary-foreground transition-all"
                   asChild
                 >
                   <Link to={`/sessions/${session.id}`}>
