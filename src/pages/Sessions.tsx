@@ -250,11 +250,10 @@ const Sessions = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2 mt-4">
+                <div className="grid grid-cols-3 gap-2 mt-4">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
                     onClick={() => handleToggleStatus(session.id)}
                   >
                     {session.status === "active" ? (
@@ -272,7 +271,6 @@ const Sessions = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1"
                     onClick={() => handleSyncMessages(session.id)}
                     disabled={syncingIds.includes(session.id)}
                   >
@@ -282,6 +280,24 @@ const Sessions = () => {
                       }`}
                     />
                     Sync
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={session.messagesCount === 0}
+                    asChild={session.messagesCount > 0}
+                  >
+                    {session.messagesCount > 0 ? (
+                      <Link to={`/sessions/${session.id}/chat`}>
+                        <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+                        Chat
+                      </Link>
+                    ) : (
+                      <>
+                        <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+                        Chat
+                      </>
+                    )}
                   </Button>
                 </div>
 
