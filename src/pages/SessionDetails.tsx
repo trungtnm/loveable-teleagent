@@ -14,9 +14,6 @@ import {
   Pause,
   RefreshCw,
   Send,
-  Tag,
-  X,
-  Plus,
   Settings,
   FileText,
 } from "lucide-react";
@@ -64,8 +61,6 @@ const SessionDetails = () => {
   const { id } = useParams();
   const [session, setSession] = useState(mockSession);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [newTag, setNewTag] = useState("");
-  const [showTagInput, setShowTagInput] = useState(false);
   
   // Chat state
   const [messages, setMessages] = useState(mockMessages);
@@ -89,25 +84,6 @@ const SessionDetails = () => {
     }, 2000);
   };
 
-  const handleAddTag = () => {
-    if (newTag.trim() && !session.tags.includes(newTag.trim().toLowerCase())) {
-      setSession((prev) => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim().toLowerCase()],
-      }));
-      setNewTag("");
-      setShowTagInput(false);
-      toast.success("Tag added");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setSession((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
-    }));
-    toast.success("Tag removed");
-  };
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -160,71 +136,6 @@ const SessionDetails = () => {
           )}
         </Badge>
       </div>
-
-      {/* Tags Section */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Tag className="w-4 h-4" />
-            Tags
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {session.tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="group hover:bg-destructive/10 cursor-pointer transition-colors"
-              >
-                {tag}
-                <button
-                  onClick={() => handleRemoveTag(tag)}
-                  className="ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
-            {showTagInput ? (
-              <div className="flex items-center gap-1">
-                <Input
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
-                  placeholder="Enter tag..."
-                  className="h-6 w-24 text-xs"
-                  autoFocus
-                />
-                <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={handleAddTag}>
-                  <Plus className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-6 w-6 p-0"
-                  onClick={() => {
-                    setShowTagInput(false);
-                    setNewTag("");
-                  }}
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-6 text-xs"
-                onClick={() => setShowTagInput(true)}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Add Tag
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Quick Stats & Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
