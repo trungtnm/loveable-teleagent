@@ -309,7 +309,7 @@ const SessionDetails = () => {
                 <h4 className="text-sm font-medium text-foreground">AI Agent Prompt</h4>
                 <div className="p-3 rounded-lg bg-muted/30 border">
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {session.config.aiPrompt}
+                    {session?.config?.aiPrompt || "No prompt configured"}
                   </p>
                 </div>
               </div>
@@ -319,13 +319,13 @@ const SessionDetails = () => {
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-foreground">Sync Interval</h4>
                   <div className="p-3 rounded-lg bg-muted/30 border">
-                    <p className="text-sm text-muted-foreground">{session.config.syncInterval}</p>
+                    <p className="text-sm text-muted-foreground">{session?.config?.syncInterval || "Not set"}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-foreground">Language</h4>
                   <div className="p-3 rounded-lg bg-muted/30 border">
-                    <p className="text-sm text-muted-foreground">{session.config.language}</p>
+                    <p className="text-sm text-muted-foreground">{session?.config?.language || "Not set"}</p>
                   </div>
                 </div>
               </div>
@@ -334,11 +334,11 @@ const SessionDetails = () => {
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-foreground">Filter Keywords</h4>
                 <div className="flex flex-wrap gap-2">
-                  {session.config.filterKeywords.map((keyword) => (
+                  {session?.config?.filterKeywords?.map((keyword) => (
                     <Badge key={keyword} variant="secondary">
                       {keyword}
                     </Badge>
-                  ))}
+                  )) || <span className="text-sm text-muted-foreground">No keywords configured</span>}
                 </div>
               </div>
 
@@ -348,8 +348,8 @@ const SessionDetails = () => {
                   <h4 className="text-sm font-medium text-foreground">Auto Summarize</h4>
                   <p className="text-xs text-muted-foreground">Automatically generate summaries for new messages</p>
                 </div>
-                <Badge variant={session.config.autoSummarize ? "default" : "secondary"}>
-                  {session.config.autoSummarize ? "Enabled" : "Disabled"}
+                <Badge variant={session?.config?.autoSummarize ? "default" : "secondary"}>
+                  {session?.config?.autoSummarize ? "Enabled" : "Disabled"}
                 </Badge>
               </div>
 
