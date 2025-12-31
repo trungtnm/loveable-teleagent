@@ -10,6 +10,7 @@ import Sessions from "./pages/Sessions";
 import SessionDetails from "./pages/SessionDetails";
 import CreateSession from "./pages/CreateSession";
 import Reports from "./pages/Reports";
+import ReportDetails from "./pages/ReportDetails";
 import Telegram from "./pages/Telegram";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/sessions/:id/chat" element={<SessionDetails />} />
             <Route path="/sessions/:id/edit" element={<CreateSession />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/reports/:id" element={<ReportDetails />} />
             <Route path="/telegram" element={<Telegram />} />
             <Route path="/settings" element={<Settings />} />
           </Route>

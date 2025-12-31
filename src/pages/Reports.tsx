@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,7 @@ const mockReports = [
 ];
 
 const Reports = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -161,7 +163,11 @@ const Reports = () => {
                       {report.status === "completed" ? "Completed" : "Processing"}
                     </Badge>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/reports/${report.id}`)}
+                      >
                         <Eye className="w-4 h-4 mr-1" />
                         View
                       </Button>
