@@ -4,8 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { User, Mail, Lock, Save, X } from "lucide-react";
+import { User, Mail, Lock, Save, X, Brain, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface LLMProvider {
+  id: string;
+  provider: string;
+  apiKey: string;
+}
+
+const LLM_PROVIDERS = [
+  { value: "openai", label: "OpenAI" },
+  { value: "anthropic", label: "Anthropic" },
+  { value: "google", label: "Google AI" },
+  { value: "mistral", label: "Mistral" },
+  { value: "cohere", label: "Cohere" },
+  { value: "groq", label: "Groq" },
+];
 
 const Settings = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +32,11 @@ const Settings = () => {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const [llmProviders, setLlmProviders] = useState<LLMProvider[]>([
+    { id: "1", provider: "", apiKey: "" }
+  ]);
+  const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +70,69 @@ const Settings = () => {
       toast({
         title: "Password changed",
         description: "Your password has been updated successfully.",
+      });
+    }, 1000);
+  };
+
+  const handleAddProvider = () => {
+    setLlmProviders([
+      ...llmProviders,
+      { id: crypto.randomUUID(), provider: "", apiKey: "" }
+    ]);
+  };
+
+  const handleRemoveProvider = (id: string) => {
+    if (llmProviders.length === 1) {
+      toast({
+        title: "Cannot remove",
+        description: "You need at least one provider entry.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLlmProviders(llmProviders.filter(p => p.id !== id));
+    setVisibleKeys(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const handleProviderChange = (id: string, field: "provider" | "apiKey", value: string) => {
+    setLlmProviders(llmProviders.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ));
+  };
+
+  const toggleKeyVisibility = (id: string) => {
+    setVisibleKeys(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleSaveLLMSettings = () => {
+    const validProviders = llmProviders.filter(p => p.provider && p.apiKey);
+    if (validProviders.length === 0) {
+      toast({
+        title: "No valid providers",
+        description: "Please add at least one provider with an API key.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      toast({
+        title: "LLM settings saved",
+        description: `${validProviders.length} provider(s) configured successfully.`,
       });
     }, 1000);
   };
@@ -112,6 +196,106 @@ const Settings = () => {
               </Button>
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* LLM Providers section */}
+      <Card className="glass mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Brain className="w-5 h-5 text-primary" />
+            LLM Providers
+          </CardTitle>
+          <CardDescription>
+            Configure your AI model providers and API keys
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {llmProviders.map((provider, index) => (
+            <div key={provider.id} className="space-y-3 p-4 rounded-lg border border-border/50 bg-background/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Provider {index + 1}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleRemoveProvider(provider.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Provider</Label>
+                  <Select
+                    value={provider.provider}
+                    onValueChange={(value) => handleProviderChange(provider.id, "provider", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select provider" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LLM_PROVIDERS.map((p) => (
+                        <SelectItem key={p.value} value={p.value}>
+                          {p.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>API Key</Label>
+                  <div className="relative">
+                    <Input
+                      type={visibleKeys.has(provider.id) ? "text" : "password"}
+                      placeholder="sk-..."
+                      value={provider.apiKey}
+                      onChange={(e) => handleProviderChange(provider.id, "apiKey", e.target.value)}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full w-10 text-muted-foreground hover:text-foreground"
+                      onClick={() => toggleKeyVisibility(provider.id)}
+                    >
+                      {visibleKeys.has(provider.id) ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-dashed"
+            onClick={handleAddProvider}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Another Provider
+          </Button>
+
+          <div className="pt-2">
+            <Button
+              type="button"
+              variant="gradient"
+              disabled={isLoading}
+              onClick={handleSaveLLMSettings}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isLoading ? "Saving..." : "Save LLM Settings"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
